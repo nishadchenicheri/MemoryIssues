@@ -1,4 +1,4 @@
-# Memory Issues
+# SQLite Plugin Memory Issues
 We have created an iOS hybrid app[Cordova IOS 3.8.0, SQLite(Cordova-SQLite-Storage) 0.7.10-pre] and noticed that there is huge memory consumption while we perform any CRUD operations.
 We tried to debug the app by enabling each feature at a time and found that the memory consumption is high when there is a SQLite plugin call. The memory consumed is never released even after we are idle for few minutes.
 To ensure that the memory consumption is from the SQLite plugin, we created a new project which performed the below operations
