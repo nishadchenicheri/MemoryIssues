@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+<!--
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ -->
+<html>
+
+<head>
+    <!--
+         Customize this policy to fit your own app's needs. For more guidance, see:
+         https://github.com/apache/cordova-plugin-whitelist/blob/master/README.md#content-security-policy
+         Some notes:
+         * gap: is required only on iOS (when using UIWebView) and is needed for JS->native communication
+         * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+         * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+         * Enable inline JS: add 'unsafe-inline' to default-src
+         -->
+    <!--        <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline'; media-src *">-->
+    <meta name="format-detection" content="telephone=no">
+    <meta name="msapplication-tap-highlight" content="no">
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <title>Hello World</title>
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript">
+
+        function insertSingleData(i) {
+            var name = "a";
+            var address = "sdfdsfdfddsf";
+            var empid = "1001";
+            var email = "a@a.com";
+
+            var query = "INSERT INTO DummyTable (empid, name, address, email) values('1001','Cccc','Eeee','a@a.com')";
+            insert(conn, query);
+            query = null;
+        }
+
+        function insertMultipleData(i) {
+            var name = "a";
+            var address = "dsfdsfdsdsfdsf";
+            var empid = "1001";
+            var email = "a@a.com";
+            var query = "INSERT INTO DummyTable "
+            query += "SELECT 'data1' AS 'empid', 'data2' AS 'name', 'data3' AS 'address', 'data4' AS 'email' "
+
+            for (var x = 0; x < 300; x++) {
+                query += "UNION SELECT '" + x + "','" + name + "_" + x + "','" + address + "_" + x + "','" + email + "_" + x + "' ";
+            }
+            insert(conn, query);
+            query = null;
+        }
+
+        //Method to select single record
+        function selectData(i) {
+            var name = "a";
+            var address = "hdjfdjsfhdsfjds";
+            var empid = "1001";
+            var email = "a@a.com";
+            var query = "select empid from DummyTable";
+
+            conn.executeSql(query, [], function(res) {
+                var len = res.rows.length;
+                    //alert(len);
+            });
+            query = null;
+        }
+        //Method to select records in loop of n iterations
+        function selectDataLoop(i) {
+            var query = "select empid from DummyTable where empid=1";
+            for (var x = 0; x < i; x++) {
+                conn.executeSql(query, [], function(res) {
+                    var len = res.rows.length;
+                    for (var x = 0; x < len; x++) {
+                        var empid = res.rows.item(x).empid;
+                    }
+                });
+
+            }
+            query = null;
+        }
+
+        //Method to insert records in loop of n iterations
+        function insertDataLoop(i) {
+            for (var x = 0; x < i; x++) {
+                var insertQuery = "INSERT INTO DummyTable (empid, name, address, email) values('1001','Cccc','Eeee','a@a.com')";
+                insert(conn, insertQuery);
+            }
+        }
+
+        //Method to update records in loop of n iterations
+        function updateDataLoop(i) {
+            for (var x = 0; x < i; x++) {
+                var updateQuery = "update DummyTable set name='Cccc' where empid = '1001' ";
+                conn.executeSql(updateQuery, [], function(e) {
+                    JSON.stringify(e);
+                }, function(e) {
+                    JSON.stringify(e)
+                });
+            }
+
+        }
+
+        //Method to delete records in loop of n iterations
+        function deleteDataLoop(i) {
+            for (var x = 0; x < i; x++) {
+                var deleteQuery = "DELETE FROM DummyTable where empid = '8'";
+                insert(conn, deleteQuery);
+            }
+        }
+
+        //Method to update multiple records in single query with bulk records
+        function updateMultipleData(i) {
+
+            var updateQuery = "update DummyTable set name= ";
+            updateQuery += "CASE empid ";
+            for (var x = 0; x < i; x++) {
+                updateQuery += "WHEN 100 THEN 'Cccc' ";
+            }
+            updateQuery += "END";
+            conn.executeSql(updateQuery, [], function(e) {
+                JSON.stringify(e);
+            }, function(e) {
+                JSON.stringify(e)
+            });
+        }
+
+        //Method to delete multiple records in loop on n
+        function deleteMultipleData(i) {
+            for (var x = 0; x < i; x++) {
+                var deleteQuery = "DELETE FROM DummyTable where empid = '8'";
+                insert(conn, deleteQuery);
+            }
+        }
+
+        //Method to update multiple records in single query with bulk records
+        function updateMultipleDataInLoop(loop) {
+
+            for (var i = 0; i < loop; i++) {
+                var updateQuery = "update DummyTable set name= ";
+                updateQuery += "CASE empid ";
+                for (var x = 0; x < i; x++) {
+                    updateQuery += "WHEN 100 THEN 'Cccc' ";
+                }
+                updateQuery += "END";
+                conn.executeSql(updateQuery, [], function(e) {
+                    JSON.stringify(e)
+                }, function(e) {
+                    JSON.stringify(e)
+                });
+            }
+        }
+
+        function deleteMultipleDataInLoop(loop) {
+            for (var i = 0; i < loop; i++) {
+                var deleteQuery = "DELETE FROM DummyTable where empid = '8'";
+                insert(conn, deleteQuery);
+            }
+            query = null;
+        }
+
+        //Method to insert multiple records in single query with bulk records
+        function insertMultipleDataLoop(i) {
+            var name = "a";
+            var address = "dsfdsfddf";
+            var empid = "1001";
+            var email = "a@a.com";
+
+            var query = "INSERT INTO DummyTable "
+            query += "SELECT 'data1' AS 'empid', 'data2' AS 'name', 'data3' AS 'address', 'data4' AS 'email' "
+
+            for (var x = 0; x < i; x++) {
+                query += "UNION SELECT '" + empid + "_" + x + "','" + name + "_" + x + "','" + address + "_" + x + "','" + email + "_" + x + "' ";
+            }
+            for (var x = 0; x < i; x++) {
+                insert(conn, query);
+            }
+
+            query = null;
+        }
+
+        //Method to get db connection
+        function getDbConn(dbName) {
+            // open the db
+            var dbconnection = window.sqlitePlugin.openDatabase({
+                name: dbName
+            });
+            return dbconnection;
+        }
+
+        function createTable(dbConn, tableName, columns) {
+            // table creation
+            query = "CREATE TABLE IF NOT EXISTS " + tableName + " (" + columns + ")";
+            try {
+                dbConn.executeSql(query, '', function() {
+
+                }, function() {
+
+                });
+            } catch (e) {
+                //alert(e);
+            }
+        }
+
+        function insert(dbConn, query) {
+            dbConn.executeSql(query, '', function() {
+                //alert('success')
+            }, function(e) {
+                //alert('error :' + JSON.stringify(e))
+            });
+        }
+
+        function select(dbConn, query) {
+            dbConn.executeSql(query, '', function() {
+                //alert('success')
+            }, function(e) {
+                //alert('error :' + JSON.stringify(e))
+            });
+        }
+
+        function deleteConn() {
+            // var dbconn = getDbConn('MyDb');
+            //alert('delete');
+            var result = delete conn;
+            //alert('deleted conn - ' + result);
+        }
+
+        setTimeout(function() {
+            //alert('get db conn')
+            setDBConn();
+        }, 4000);
+
+        function setDBConn() {
+            conn = getDbConn('MyDb');
+            createTable(conn, 'DummyTable', 'empid,name,address,email');
+        }
+    </script>
+    <title>Hello World</title>
+</head>
+
+<body align='center'>
+    <div>
+
+
+        <BR>
+        <BR>
+        <BR>Single record Operation<BR>
+        <button onClick="selectData(0)">Select</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="insertSingleData(0)">Insert</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="updateData(0)">Update</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="deleteData(0)">Delete</button>
+     
+        <BR>
+        <BR>
+        <BR>
+        <BR>Record Operation with a loop of 10<BR>
+        <button onClick="selectDataLoop(10)">Select</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="insertDataLoop(10)">Insert</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="updateDataLoop(10)">Update</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="deleteDataLoop(10)">Delete</button>
+     
+        <BR>
+        <BR>
+        <BR>
+
+        <BR>Record Operation with a loop of 100<BR>
+        <button onClick="selectDataLoop(100)">Select</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="insertDataLoop(100)">Insert</button>
+       &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="updateDataLoop(100)">Update</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="deleteDataLoop(100)">Delete</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        
+        <BR>
+        <BR>
+        <BR>
+
+        <BR>Record Operations with a batch of 10<BR>
+        <button onClick="insertMultipleData(10)">Insert</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="updateMultipleData(10)">Update</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="deleteMultipleData(10)">Delete</button>
+        
+        <BR>
+        <BR>
+        <BR>
+
+
+        <BR>Record Operations with a batch of 100<BR>
+        <button onClick="insertMultipleData(100)">Insert</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="updateMultipleData(100)">Update</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="deleteMultipleData(100)">Delete</button>
+        
+        <BR>
+        <BR>
+        <BR>
+
+
+        <BR>Record Operations with a batch of 10 with a Loop of 10<BR>
+        <button onClick="insertMultipleDataLoop(10)">Insert</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="updateMultipleDataInLoop(10)">Update</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="deleteMultipleDataInLoop(10)">Delete</button>
+        
+        <BR>
+        <BR>
+        <BR>
+
+
+        <BR>Record Operations with a batch of 100 with a Loop of 100<BR>
+        <button onClick="insertMultipleDataLoop(100)">Insert</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="updateMultipleDataInLoop(100)">Update</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;
+        <button onClick="deleteMultipleDataInLoop(100)">Delete</button>
+        
+        <BR>
+        <BR>
+        <BR>
+        <!--
+        <button onClick="insertData(300)">Insert 300</button>
+        -->
+    
+    </div>
+
+</body>
+
+</html>
